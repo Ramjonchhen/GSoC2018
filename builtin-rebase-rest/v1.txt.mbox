@@ -1,0 +1,809 @@
+From mboxrd@z Thu Jan  1 00:00:00 1970
+Return-Path: <git-owner@vger.kernel.org>
+X-Spam-Checker-Version: SpamAssassin 3.4.1 (2015-04-28) on dcvr.yhbt.net
+X-Spam-Level: 
+X-Spam-ASN: AS31976 209.132.180.0/23
+X-Spam-Status: No, score=-4.1 required=3.0 tests=AWL,BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,RCVD_IN_DNSWL_HI
+	shortcircuit=no autolearn=ham autolearn_force=no version=3.4.1
+Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
+	by dcvr.yhbt.net (Postfix) with ESMTP id 4C0D2208EB
+	for <e@80x24.org>; Wed,  8 Aug 2018 15:38:23 +0000 (UTC)
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1729462AbeHHR6d (ORCPT <rfc822;e@80x24.org>);
+        Wed, 8 Aug 2018 13:58:33 -0400
+Received: from mail-ed1-f54.google.com ([209.85.208.54]:37655 "EHLO
+        mail-ed1-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727202AbeHHR6d (ORCPT <rfc822;git@vger.kernel.org>);
+        Wed, 8 Aug 2018 13:58:33 -0400
+Received: by mail-ed1-f54.google.com with SMTP id b10-v6so1483082eds.4
+        for <git@vger.kernel.org>; Wed, 08 Aug 2018 08:38:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references;
+        bh=8capz1jA4oT1K0CUPp0FKV4ZJ9kGvuCDac5lIfN7ZHY=;
+        b=euMOrw6ZZyTRvoBHu8B24CpITLeYC2tD8jk5q6u5B2YEgmhh5NG8zV3OpdT+CEOPgQ
+         5STNEQUGKyfvcLiEx9sY52065nVmMls/XsGMgVJvdpBrI96wEOQ7L840tfO890G/JPMb
+         PQ0lVemVvDLCH94BZPOuefGCQkeHhYlTaA+ecUck6UiW4UqZdeFYMLfyQIQvCubfsMNX
+         qdl4M7eJY3cWfuNnVDDa4mC6XUQ3dDjbk6cnrD1RsGpIdczMdoLfCShNM0gzQlGut+Zg
+         56fgNpTyuOy4hGDXhtv/suZcIgEmRxraft3bM7dUCfTeeOwJYshyo6hxF7cwjE3wPc3p
+         nusQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references;
+        bh=8capz1jA4oT1K0CUPp0FKV4ZJ9kGvuCDac5lIfN7ZHY=;
+        b=MlL8c9hXQyhCaP0CrwI4cwQ+7g03cAkR8FOHnzoGh3V440EdNZ/LKsryLLW2eO9nER
+         S6SZdAECvZT+418eqJBQyzIzJzgrrJzwWcxQpQdrV9Z3lN1efKo3ttdMnmFM1sf9anYI
+         JEW7UxnASqyGR1jDCyIM9LphpyAiJv7nKHr7T193Tmx2xZvJ8esjRVxViVC2ZCLDQ4Pi
+         +SIZmtTMdogO+7GBB03jG9bjhz671OFh93gW4pHArvydclkuzvbMn0fKZUt9+X7yI5Aj
+         XHtUMMTs04BWD2SGBYmtChwEOi2c5BfFk9PTEuyADdpnWN4/B5ftjFXkA5bcWTUVbM6m
+         mI4A==
+X-Gm-Message-State: AOUpUlECyovMKY5EuREUS3nurQnFo0MdOETS59la3Sadcvq4m2PTuzdz
+        yKsY7rqG2WvaFETGUeWQV8G3h0yb
+X-Google-Smtp-Source: AA+uWPyhnqL7lU1GYTJEVQTQvTSgtlI9lCPh2dMUU0qCDahxU4CpHezQiow3gP4ln6NPYoGwz0p8kA==
+X-Received: by 2002:a50:9fe9:: with SMTP id c96-v6mr2827927edf.17.1533742699577;
+        Wed, 08 Aug 2018 08:38:19 -0700 (PDT)
+Received: from localhost.localdomain ([27.34.16.181])
+        by smtp.gmail.com with ESMTPSA id d11-v6sm1904876edo.39.2018.08.08.08.38.16
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 08 Aug 2018 08:38:18 -0700 (PDT)
+From:   Pratik Karki <predatoramigo@gmail.com>
+To:     git@vger.kernel.org
+Cc:     christian.couder@gmail.com, Johannes.Schindelin@gmx.de,
+        sbeller@google.com, alban.gruin@gmail.com, gitster@pobox.com,
+        Pratik Karki <predatoramigo@gmail.com>
+Subject: [PATCH 1/6] builtin rebase: optionally auto-detect the upstream
+Date:   Wed,  8 Aug 2018 21:21:30 +0545
+Message-Id: <20180808153635.19944-2-predatoramigo@gmail.com>
+X-Mailer: git-send-email 2.18.0
+In-Reply-To: <20180808153635.19944-1-predatoramigo@gmail.com>
+References: <20180808153635.19944-1-predatoramigo@gmail.com>
+Sender: git-owner@vger.kernel.org
+Precedence: bulk
+List-ID: <git.vger.kernel.org>
+X-Mailing-List: git@vger.kernel.org
+Archived-At: <https://public-inbox.org/git/20180808153635.19944-2-predatoramigo@gmail.com/>
+List-Archive: <https://public-inbox.org/git/>
+List-Post: <mailto:git@vger.kernel.org>
+
+The `git rebase` command, when called without the `<upstream>`
+command-line argument, automatically looks for the upstream
+branch configured for the current branch.
+
+With this commit, the builtin rebase learned that trick, too.
+
+Signed-off-by: Pratik Karki <predatoramigo@gmail.com>
+---
+ builtin/rebase.c | 44 +++++++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 41 insertions(+), 3 deletions(-)
+
+diff --git a/builtin/rebase.c b/builtin/rebase.c
+index 94abaaa890..c5b2534717 100644
+--- a/builtin/rebase.c
++++ b/builtin/rebase.c
+@@ -622,6 +622,36 @@ static int parse_opt_interactive(const struct option *opt, const char *arg,
+ 	return 0;
+ }
+ 
++static void NORETURN error_on_missing_default_upstream(void)
++{
++	struct branch *current_branch = branch_get(NULL);
++
++	printf(_("%s\n"
++		 "Please specify which branch you want to rebase against.\n"
++		 "See git-rebase(1) for details.\n"
++		 "\n"
++		 "    git rebase '<branch>'\n"
++		 "\n"),
++		current_branch ? _("There is no tracking information for "
++			"the current branch.") :
++			_("You are not currently on a branch."));
++
++	if (current_branch) {
++		const char *remote = current_branch->remote_name;
++
++		if (!remote)
++			remote = _("<remote>");
++
++		printf(_("If you wish to set tracking information for this "
++			 "branch you can do so with:\n"
++			 "\n"
++			 "    git branch --set-upstream-to=%s/<branch> %s\n"
++			 "\n"),
++		       remote, current_branch->name);
++	}
++	exit(1);
++}
++
+ int cmd_rebase(int argc, const char **argv, const char *prefix)
+ {
+ 	struct rebase_options options = {
+@@ -1056,9 +1086,17 @@ int cmd_rebase(int argc, const char **argv, const char *prefix)
+ 	}
+ 
+ 	if (!options.root) {
+-		if (argc < 1)
+-			die("TODO: handle @{upstream}");
+-		else {
++		if (argc < 1) {
++			struct branch *branch;
++
++			branch = branch_get(NULL);
++			options.upstream_name = branch_get_upstream(branch,
++								    NULL);
++			if (!options.upstream_name)
++				error_on_missing_default_upstream();
++			if (fork_point < 0)
++				fork_point = 1;
++		} else {
+ 			options.upstream_name = argv[0];
+ 			argc--;
+ 			argv++;
+-- 
+2.18.0
+
+
+From mboxrd@z Thu Jan  1 00:00:00 1970
+Return-Path: <git-owner@vger.kernel.org>
+X-Spam-Checker-Version: SpamAssassin 3.4.1 (2015-04-28) on dcvr.yhbt.net
+X-Spam-Level: 
+X-Spam-ASN: AS31976 209.132.180.0/23
+X-Spam-Status: No, score=-4.1 required=3.0 tests=AWL,BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,RCVD_IN_DNSWL_HI
+	shortcircuit=no autolearn=ham autolearn_force=no version=3.4.1
+Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
+	by dcvr.yhbt.net (Postfix) with ESMTP id 43887208EB
+	for <e@80x24.org>; Wed,  8 Aug 2018 15:38:27 +0000 (UTC)
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1729230AbeHHR6h (ORCPT <rfc822;e@80x24.org>);
+        Wed, 8 Aug 2018 13:58:37 -0400
+Received: from mail-ed1-f52.google.com ([209.85.208.52]:35878 "EHLO
+        mail-ed1-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727202AbeHHR6h (ORCPT <rfc822;git@vger.kernel.org>);
+        Wed, 8 Aug 2018 13:58:37 -0400
+Received: by mail-ed1-f52.google.com with SMTP id k15-v6so1481169edr.3
+        for <git@vger.kernel.org>; Wed, 08 Aug 2018 08:38:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references;
+        bh=7BovAKAwAf0aNmEGwNWpS2llrtN45xFWy1wLIg8lnKY=;
+        b=NJyqB4JTIINk9X9Q05O9OAv9xRQlcU1g3o36MWdsu0DeXEDsS/e+mJxU0gqbtrno8U
+         TJ4eSapx3S0OkFYL9BxM7aUzDtvWSnqWBWgq2CDdUDwfXIuqaRvGrvpj4Z7a1l6AOXNw
+         c1zwY7vLLPmx1ZS85kaX2A/AasacHQXmWHBIW4S/jx0mOdjEOjyagDskymSQNJ/+OsM/
+         F/76hktA7UaOpJttP5abCUPw1YqBkHCdUJlKuVRn2wPI2pqdlHO8wsqGWHLx9OJc4G76
+         saAA0P30MOr52C4AN5D4XoAniGJwv1CI/Y4Mk6VlK7mJQzDZnEFr+pBpsB1BOAObQbvU
+         2KRw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references;
+        bh=7BovAKAwAf0aNmEGwNWpS2llrtN45xFWy1wLIg8lnKY=;
+        b=jDEH16fqHiJdshsPKC5Z9y05fDN/M5TI9+W61w+1yDdPPjtqEOkzs7MOzcEQTOGXdr
+         Mrp8it01Tg08LXcMlcFiI2aKUs+oRfOXumU4FWy9KFL89bRRwAIVOvq8JlsMRs6x16IC
+         ncRg1D1xwMSwXVYEW0XbX7TTkA+kkR4SHHVLI5RcVvRRtds2V5lPythr0c5UCyklgavJ
+         58D+DY+hsw4RcZUh8zKSUlFNsqMitnxGeJ1UUcU5qJjAGOEIpLED4LyUPGhgO8EnlVwq
+         2KfKX5Z3REiWvpmQmhMd/xuhzQkKxQD8nnNl15eNepJtCLO82IosCB3mH6a4Oro5MYS4
+         aYJw==
+X-Gm-Message-State: AOUpUlHOEHA1YhhHPuGtZbGrY8rsvB8hrINbBZCq0K620RJh1iwaVj7K
+        XwO470KGvE0r2EXgxdjOuKFWZcuh
+X-Google-Smtp-Source: AA+uWPwJqIid2UL8wZmeyrAIquWxOQURM9pXMCle5Shm9biweT5vOUIhDNXw88Jo34fKlvBbd4cZfg==
+X-Received: by 2002:a50:f31a:: with SMTP id p26-v6mr3960423edm.68.1533742703266;
+        Wed, 08 Aug 2018 08:38:23 -0700 (PDT)
+Received: from localhost.localdomain ([27.34.16.181])
+        by smtp.gmail.com with ESMTPSA id d11-v6sm1904876edo.39.2018.08.08.08.38.19
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 08 Aug 2018 08:38:22 -0700 (PDT)
+From:   Pratik Karki <predatoramigo@gmail.com>
+To:     git@vger.kernel.org
+Cc:     christian.couder@gmail.com, Johannes.Schindelin@gmx.de,
+        sbeller@google.com, alban.gruin@gmail.com, gitster@pobox.com,
+        Pratik Karki <predatoramigo@gmail.com>
+Subject: [PATCH 2/6] builtin rebase: optionally pass custom reflogs to reset_head()
+Date:   Wed,  8 Aug 2018 21:21:31 +0545
+Message-Id: <20180808153635.19944-3-predatoramigo@gmail.com>
+X-Mailer: git-send-email 2.18.0
+In-Reply-To: <20180808153635.19944-1-predatoramigo@gmail.com>
+References: <20180808153635.19944-1-predatoramigo@gmail.com>
+Sender: git-owner@vger.kernel.org
+Precedence: bulk
+List-ID: <git.vger.kernel.org>
+X-Mailing-List: git@vger.kernel.org
+Archived-At: <https://public-inbox.org/git/20180808153635.19944-3-predatoramigo@gmail.com/>
+List-Archive: <https://public-inbox.org/git/>
+List-Post: <mailto:git@vger.kernel.org>
+
+In the next patch, we will make use of that in the code that
+fast-forwards to `onto` whenever possible.
+
+Signed-off-by: Pratik Karki <predatoramigo@gmail.com>
+---
+ builtin/rebase.c | 33 +++++++++++++++++++++------------
+ 1 file changed, 21 insertions(+), 12 deletions(-)
+
+diff --git a/builtin/rebase.c b/builtin/rebase.c
+index c5b2534717..c51b9d288a 100644
+--- a/builtin/rebase.c
++++ b/builtin/rebase.c
+@@ -431,7 +431,8 @@ static int run_specific_rebase(struct rebase_options *opts)
+ #define GIT_REFLOG_ACTION_ENVIRONMENT "GIT_REFLOG_ACTION"
+ 
+ static int reset_head(struct object_id *oid, const char *action,
+-		      const char *switch_to_branch, int detach_head)
++		      const char *switch_to_branch, int detach_head,
++		      const char *reflog_orig_head, const char *reflog_head)
+ {
+ 	struct object_id head_oid;
+ 	struct tree_desc desc;
+@@ -506,20 +507,26 @@ static int reset_head(struct object_id *oid, const char *action,
+ 		old_orig = &oid_old_orig;
+ 	if (!get_oid("HEAD", &oid_orig)) {
+ 		orig = &oid_orig;
+-		strbuf_addstr(&msg, "updating ORIG_HEAD");
+-		update_ref(msg.buf, "ORIG_HEAD", orig, old_orig, 0,
++		if (!reflog_orig_head) {
++			strbuf_addstr(&msg, "updating ORIG_HEAD");
++			reflog_orig_head = msg.buf;
++		}
++		update_ref(reflog_orig_head, "ORIG_HEAD", orig, old_orig, 0,
+ 			   UPDATE_REFS_MSG_ON_ERR);
+ 	} else if (old_orig)
+ 		delete_ref(NULL, "ORIG_HEAD", old_orig, 0);
+-	strbuf_setlen(&msg, prefix_len);
+-	strbuf_addstr(&msg, "updating HEAD");
++	if (!reflog_head) {
++		strbuf_setlen(&msg, prefix_len);
++		strbuf_addstr(&msg, "updating HEAD");
++		reflog_head = msg.buf;
++	}
+ 	if (!switch_to_branch)
+-		ret = update_ref(msg.buf, "HEAD", oid, orig, REF_NO_DEREF,
++		ret = update_ref(reflog_head, "HEAD", oid, orig, REF_NO_DEREF,
+ 				 UPDATE_REFS_MSG_ON_ERR);
+ 	else {
+ 		ret = create_symref("HEAD", switch_to_branch, msg.buf);
+ 		if (!ret)
+-			ret = update_ref(msg.buf, "HEAD", oid, NULL, 0,
++			ret = update_ref(reflog_head, "HEAD", oid, NULL, 0,
+ 					 UPDATE_REFS_MSG_ON_ERR);
+ 	}
+ 
+@@ -899,7 +906,7 @@ int cmd_rebase(int argc, const char **argv, const char *prefix)
+ 		rerere_clear(&merge_rr);
+ 		string_list_clear(&merge_rr, 1);
+ 
+-		if (reset_head(NULL, "reset", NULL, 0) < 0)
++		if (reset_head(NULL, "reset", NULL, 0, NULL, NULL) < 0)
+ 			die(_("could not discard worktree changes"));
+ 		if (read_basic_state(&options))
+ 			exit(1);
+@@ -915,7 +922,7 @@ int cmd_rebase(int argc, const char **argv, const char *prefix)
+ 		if (read_basic_state(&options))
+ 			exit(1);
+ 		if (reset_head(&options.orig_head, "reset",
+-			       options.head_name, 0) < 0)
++			       options.head_name, 0, NULL, NULL) < 0)
+ 			die(_("could not move back to %s"),
+ 			    oid_to_hex(&options.orig_head));
+ 		ret = finish_rebase(&options);
+@@ -1235,7 +1242,7 @@ int cmd_rebase(int argc, const char **argv, const char *prefix)
+ 			write_file(autostash, "%s", buf.buf);
+ 			printf(_("Created autostash: %s\n"), buf.buf);
+ 			if (reset_head(&head->object.oid, "reset --hard",
+-				       NULL, 0) < 0)
++				       NULL, 0, NULL, NULL) < 0)
+ 				die(_("could not reset --hard"));
+ 			printf(_("HEAD is now at %s"),
+ 			       find_unique_abbrev(&head->object.oid,
+@@ -1289,7 +1296,8 @@ int cmd_rebase(int argc, const char **argv, const char *prefix)
+ 				strbuf_addf(&buf, "rebase: checkout %s",
+ 					    options.switch_to);
+ 				if (reset_head(&oid, "checkout",
+-					       options.head_name, 0) < 0) {
++					       options.head_name, 0,
++					       NULL, NULL) < 0) {
+ 					ret = !!error(_("could not switch to "
+ 							"%s"),
+ 						      options.switch_to);
+@@ -1354,7 +1362,8 @@ int cmd_rebase(int argc, const char **argv, const char *prefix)
+ 			 "it...\n"));
+ 
+ 	strbuf_addf(&msg, "rebase: checkout %s", options.onto_name);
+-	if (reset_head(&options.onto->object.oid, "checkout", NULL, 1))
++	if (reset_head(&options.onto->object.oid, "checkout", NULL, 1,
++	    NULL, msg.buf))
+ 		die(_("Could not detach HEAD"));
+ 	strbuf_release(&msg);
+ 
+-- 
+2.18.0
+
+
+From mboxrd@z Thu Jan  1 00:00:00 1970
+Return-Path: <git-owner@vger.kernel.org>
+X-Spam-Checker-Version: SpamAssassin 3.4.1 (2015-04-28) on dcvr.yhbt.net
+X-Spam-Level: 
+X-Spam-ASN: AS31976 209.132.180.0/23
+X-Spam-Status: No, score=-4.1 required=3.0 tests=AWL,BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,RCVD_IN_DNSWL_HI
+	shortcircuit=no autolearn=ham autolearn_force=no version=3.4.1
+Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
+	by dcvr.yhbt.net (Postfix) with ESMTP id 417A3208EB
+	for <e@80x24.org>; Wed,  8 Aug 2018 15:38:30 +0000 (UTC)
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1729332AbeHHR6k (ORCPT <rfc822;e@80x24.org>);
+        Wed, 8 Aug 2018 13:58:40 -0400
+Received: from mail-ed1-f65.google.com ([209.85.208.65]:34445 "EHLO
+        mail-ed1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729193AbeHHR6k (ORCPT <rfc822;git@vger.kernel.org>);
+        Wed, 8 Aug 2018 13:58:40 -0400
+Received: by mail-ed1-f65.google.com with SMTP id h1-v6so1484849eds.1
+        for <git@vger.kernel.org>; Wed, 08 Aug 2018 08:38:27 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references;
+        bh=tqGXNigRm7oRyH4MhpkVQuId1m+XD/BzUXcb5G2A9Rk=;
+        b=WKNl0wRrrn1sg7ynlbo7q8KwRVwiVTowHXyDTx7+QrubrPdXc1Z9PvbBSFh2rOuaol
+         WcVO9DmOsHbEQ8LOFA7acCNSp0Dn019I8LdLUniQI3wuCvJJoXBbIIfsXfDoFTq4v3XV
+         bgVd2rwgVdpWtpscZirRo+PzlQotJeh6wnL2FcttBm6yS65zJKF99HXbM131SEhXSuJj
+         u3Vk4KAbWzNW+rTz/BqnS9KZs+52MAF7yOk0b69BFKQnSYOyYjZR/idlhi4rQ7WCeY+V
+         /kosaFT+cda6iCE0DEeQdvFvvhiPhZpoLy6SZq74FvC9MKCJAjNiZzMTGY3doPEdOpHs
+         ttzQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references;
+        bh=tqGXNigRm7oRyH4MhpkVQuId1m+XD/BzUXcb5G2A9Rk=;
+        b=adO3+FxbwwuYv1KMjyrLBMcjgU02fVW58j45Jcd/qMPkOQXO2PHubf5iQgQbT0X4XC
+         OrBJsE7Brath/f+ElbqUMv6v7n4ssIxb4HiIcssjazkklp6QhwToSJzUPYNbR2yLdA0q
+         Jx6AfodZtCzIQymct94f0LlaWY6bCsVIvnfJ6BHO9vR6NhE5QrFtQKZf3g9+uGVnYNYu
+         FzhZKSMaoqOi3DMSxSMl3ruNEYJj6idtBPYZa3wZ+SQQb0Ciadk85/prjzpG5JuqTsW8
+         yUYyUyROpzb3rJAO5sXFoMWDSlFdTjnY31iNAFOjDc/qEG8HxiHOFb4r4ZSDmbQoA7/w
+         OZDg==
+X-Gm-Message-State: AOUpUlFo67ytQZBJVRZFYaJvtBg8sQ1Yo7i1gJtPIMmFLSw9XlUA7nSp
+        diVvD3oAtYv1YSQyv9aDa0xfM1OY
+X-Google-Smtp-Source: AA+uWPwYHM+NaWlCr0xKC+JRimSl6YDdiwmEQHlRzAMieQD+dYnAmuzqgbqpmAo7nEe8sYQ38ztCFw==
+X-Received: by 2002:a50:8607:: with SMTP id o7-v6mr3863966edo.243.1533742706929;
+        Wed, 08 Aug 2018 08:38:26 -0700 (PDT)
+Received: from localhost.localdomain ([27.34.16.181])
+        by smtp.gmail.com with ESMTPSA id d11-v6sm1904876edo.39.2018.08.08.08.38.23
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 08 Aug 2018 08:38:26 -0700 (PDT)
+From:   Pratik Karki <predatoramigo@gmail.com>
+To:     git@vger.kernel.org
+Cc:     christian.couder@gmail.com, Johannes.Schindelin@gmx.de,
+        sbeller@google.com, alban.gruin@gmail.com, gitster@pobox.com,
+        Pratik Karki <predatoramigo@gmail.com>
+Subject: [PATCH 3/6] builtin rebase: fast-forward to onto if it is a proper descendant
+Date:   Wed,  8 Aug 2018 21:21:32 +0545
+Message-Id: <20180808153635.19944-4-predatoramigo@gmail.com>
+X-Mailer: git-send-email 2.18.0
+In-Reply-To: <20180808153635.19944-1-predatoramigo@gmail.com>
+References: <20180808153635.19944-1-predatoramigo@gmail.com>
+Sender: git-owner@vger.kernel.org
+Precedence: bulk
+List-ID: <git.vger.kernel.org>
+X-Mailing-List: git@vger.kernel.org
+Archived-At: <https://public-inbox.org/git/20180808153635.19944-4-predatoramigo@gmail.com/>
+List-Archive: <https://public-inbox.org/git/>
+List-Post: <mailto:git@vger.kernel.org>
+
+When trying to rebase onto a direct descendant of HEAD, we can
+take a shortcut and fast-forward instead. This commit makes it so.
+
+Signed-off-by: Pratik Karki <predatoramigo@gmail.com>
+---
+ builtin/rebase.c | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
+
+diff --git a/builtin/rebase.c b/builtin/rebase.c
+index c51b9d288a..1bb64e7cd7 100644
+--- a/builtin/rebase.c
++++ b/builtin/rebase.c
+@@ -1367,6 +1367,24 @@ int cmd_rebase(int argc, const char **argv, const char *prefix)
+ 		die(_("Could not detach HEAD"));
+ 	strbuf_release(&msg);
+ 
++	/*
++	 * If the onto is a proper descendant of the tip of the branch, then
++	 * we just fast-forwarded.
++	 */
++	strbuf_reset(&msg);
++	if (!oidcmp(&merge_base, &options.orig_head)) {
++		printf(_("Fast-forwarded %s to %s. \n"),
++			branch_name, options.onto_name);
++		strbuf_addf(&msg, "rebase finished: %s onto %s",
++			options.head_name ? options.head_name : "detached HEAD",
++			oid_to_hex(&options.onto->object.oid));
++		reset_head(NULL, "Fast-forwarded", options.head_name, 0,
++			   "HEAD", msg.buf);
++		strbuf_release(&msg);
++		ret = !!finish_rebase(&options);
++		goto cleanup;
++	}
++
+ 	strbuf_addf(&revisions, "%s..%s",
+ 		    options.root ? oid_to_hex(&options.onto->object.oid) :
+ 		    (options.restrict_revision ?
+-- 
+2.18.0
+
+
+From mboxrd@z Thu Jan  1 00:00:00 1970
+Return-Path: <git-owner@vger.kernel.org>
+X-Spam-Checker-Version: SpamAssassin 3.4.1 (2015-04-28) on dcvr.yhbt.net
+X-Spam-Level: 
+X-Spam-ASN: AS31976 209.132.180.0/23
+X-Spam-Status: No, score=-4.1 required=3.0 tests=AWL,BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,RCVD_IN_DNSWL_HI
+	shortcircuit=no autolearn=ham autolearn_force=no version=3.4.1
+Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
+	by dcvr.yhbt.net (Postfix) with ESMTP id 173EC208EB
+	for <e@80x24.org>; Wed,  8 Aug 2018 15:38:34 +0000 (UTC)
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1729466AbeHHR6o (ORCPT <rfc822;e@80x24.org>);
+        Wed, 8 Aug 2018 13:58:44 -0400
+Received: from mail-ed1-f67.google.com ([209.85.208.67]:42187 "EHLO
+        mail-ed1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729193AbeHHR6n (ORCPT <rfc822;git@vger.kernel.org>);
+        Wed, 8 Aug 2018 13:58:43 -0400
+Received: by mail-ed1-f67.google.com with SMTP id r4-v6so1460086edp.9
+        for <git@vger.kernel.org>; Wed, 08 Aug 2018 08:38:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references;
+        bh=4rmi2GBI/+bqSls8GM8y9kSorbvqDaO4nAmNx+upCbI=;
+        b=Vjmnr4UY9fLF1HfJ9+niyOnHpBc+D+JT7HySISMnphDUbyTSuxIUHPB2ynOoYVBESi
+         cYhEIkj5Gz6PE0svQInp84kcN4t8K/594TnCHaOmKG23EMJPrVA9uIfDrPl4u/J+pHGd
+         dSU4uGAyrdPbdiGTVDgBi7p1GOVlIoD2jdU7/8qYMeiH0rlUkd9m3ZxddsdJt38Qh4GP
+         k/4vKt5PjuotYfzqbA4tVzZMhAAMFPIoyTNp2L4fO8+Ux2X3IeKunb21+X4eOT37sCW3
+         U8OuE0/PpLw8WNm89RVhrXpDM8qpGbbEs7usP7QtqvFr7dIukiMt+7hpU7WR/s2zrPti
+         jxhA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references;
+        bh=4rmi2GBI/+bqSls8GM8y9kSorbvqDaO4nAmNx+upCbI=;
+        b=OStc5AjGDsuWAWF0VZe1f61Ngs2lMgtJqXKMTbHKxvC+nNMPiz1Pt6clRDNC8d/gvO
+         RjUfstZ/mEsksQE7U0KxvToFhkIJw2Dl9xun6ep6ieLhOtnAaGlIdhEd/vU7PMpLsO5Y
+         VnlF8GIQ9QNVjh0NfF0nZAP8P3457JuEjt1SRwjwu8xBKjHdzLono6mmQ0GgivySaGbE
+         H3vLFoL+HE9CVmtgw0HpoSxN7dKM3hqHYEp3OMxyXDxKD5EpzSMlOv237TFPTNPHg4Ki
+         3AVD29TpV3zPNCbYRqLnmUrOo1YTJlJ68S3gqUGlfRJzg/kQstEo1FNXGwnu8HB137+A
+         bFDg==
+X-Gm-Message-State: AOUpUlHiducrOY3zUMK2L5A7Hopvj8zR0Ec7CjHFZw0EksWjFv45fVNa
+        gq1Cq5sJpzipScAWQaPcNjcuoVlg
+X-Google-Smtp-Source: AA+uWPzidJJHRSEvluRNLIyUpXprFYter/JaQgtULaIpNrOoZGpJYeAYrcYye0eHXqdYJyFF1LdG9Q==
+X-Received: by 2002:a50:90e7:: with SMTP id d36-v6mr3733156eda.279.1533742710585;
+        Wed, 08 Aug 2018 08:38:30 -0700 (PDT)
+Received: from localhost.localdomain ([27.34.16.181])
+        by smtp.gmail.com with ESMTPSA id d11-v6sm1904876edo.39.2018.08.08.08.38.27
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 08 Aug 2018 08:38:29 -0700 (PDT)
+From:   Pratik Karki <predatoramigo@gmail.com>
+To:     git@vger.kernel.org
+Cc:     christian.couder@gmail.com, Johannes.Schindelin@gmx.de,
+        sbeller@google.com, alban.gruin@gmail.com, gitster@pobox.com,
+        Pratik Karki <predatoramigo@gmail.com>
+Subject: [PATCH 4/6] builtin rebase: show progress when connected to a terminal
+Date:   Wed,  8 Aug 2018 21:21:33 +0545
+Message-Id: <20180808153635.19944-5-predatoramigo@gmail.com>
+X-Mailer: git-send-email 2.18.0
+In-Reply-To: <20180808153635.19944-1-predatoramigo@gmail.com>
+References: <20180808153635.19944-1-predatoramigo@gmail.com>
+Sender: git-owner@vger.kernel.org
+Precedence: bulk
+List-ID: <git.vger.kernel.org>
+X-Mailing-List: git@vger.kernel.org
+Archived-At: <https://public-inbox.org/git/20180808153635.19944-5-predatoramigo@gmail.com/>
+List-Archive: <https://public-inbox.org/git/>
+List-Post: <mailto:git@vger.kernel.org>
+
+In this commit, we pass `--progress` to the `format-patch` command if
+stderr is connected to an interactive terminal, unless we're in quiet
+mode.
+
+This `--progress` option will be used in `format-patch` to show progress
+reports on stderr as patches are generated.
+
+Signed-off-by: Pratik Karki <predatoramigo@gmail.com>
+---
+ builtin/rebase.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/builtin/rebase.c b/builtin/rebase.c
+index 1bb64e7cd7..04974dff6e 100644
+--- a/builtin/rebase.c
++++ b/builtin/rebase.c
+@@ -98,6 +98,7 @@ struct rebase_options {
+ 	int allow_empty_message;
+ 	int rebase_merges, rebase_cousins;
+ 	char *strategy, *strategy_opts;
++	struct strbuf git_format_patch_opt;
+ };
+ 
+ static int is_interactive(struct rebase_options *opts)
+@@ -379,6 +380,8 @@ static int run_specific_rebase(struct rebase_options *opts)
+ 	add_var(&script_snippet, "rebase_root", opts->root ? "t" : "");
+ 	add_var(&script_snippet, "squash_onto",
+ 		opts->squash_onto ? oid_to_hex(opts->squash_onto) : "");
++	add_var(&script_snippet, "git_format_patch_opt",
++		opts->git_format_patch_opt.buf);
+ 
+ 	switch (opts->type) {
+ 	case REBASE_AM:
+@@ -667,6 +670,7 @@ int cmd_rebase(int argc, const char **argv, const char *prefix)
+ 		.git_am_opt = STRBUF_INIT,
+ 		.allow_rerere_autoupdate  = -1,
+ 		.allow_empty_message = 1,
++		.git_format_patch_opt = STRBUF_INIT,
+ 	};
+ 	const char *branch_name;
+ 	int ret, flags, total_argc, in_progress = 0;
+@@ -1068,6 +1072,9 @@ int cmd_rebase(int argc, const char **argv, const char *prefix)
+ 	if (options.root && !options.onto_name)
+ 		imply_interactive(&options, "--root without --onto");
+ 
++	if (isatty(2) && options.flags & REBASE_NO_QUIET)
++		strbuf_addstr(&options.git_format_patch_opt, " --progress");
++
+ 	switch (options.type) {
+ 	case REBASE_MERGE:
+ 	case REBASE_INTERACTIVE:
+-- 
+2.18.0
+
+
+From mboxrd@z Thu Jan  1 00:00:00 1970
+Return-Path: <git-owner@vger.kernel.org>
+X-Spam-Checker-Version: SpamAssassin 3.4.1 (2015-04-28) on dcvr.yhbt.net
+X-Spam-Level: 
+X-Spam-ASN: AS31976 209.132.180.0/23
+X-Spam-Status: No, score=-4.1 required=3.0 tests=AWL,BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,RCVD_IN_DNSWL_HI
+	shortcircuit=no autolearn=ham autolearn_force=no version=3.4.1
+Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
+	by dcvr.yhbt.net (Postfix) with ESMTP id C3C1C208EB
+	for <e@80x24.org>; Wed,  8 Aug 2018 15:38:37 +0000 (UTC)
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1729010AbeHHR6s (ORCPT <rfc822;e@80x24.org>);
+        Wed, 8 Aug 2018 13:58:48 -0400
+Received: from mail-ed1-f68.google.com ([209.85.208.68]:45880 "EHLO
+        mail-ed1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728947AbeHHR6r (ORCPT <rfc822;git@vger.kernel.org>);
+        Wed, 8 Aug 2018 13:58:47 -0400
+Received: by mail-ed1-f68.google.com with SMTP id s16-v6so1454210edq.12
+        for <git@vger.kernel.org>; Wed, 08 Aug 2018 08:38:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references;
+        bh=quPVf8eBVzcZxz8ex5NJeP51z5cR0PcYn2Z1GwULhcw=;
+        b=WDxuekuKECM3ThfwZFuP6eKd6FdoG6xfvVOwhEbvuY/T3D4L32Q+daWE1RyZtTK/wS
+         F6X8q95kpR+5OHdaL0H/rzhHUuhqlghaVFGNb+TOeHO+0kcTQyqA+y1XXXsS5SHQXUUx
+         TT7c8twqQzot96YuycC5RAgP1RFG84mkryda9cswkZvuZdP76y7H132gnPZ5cO6eZwG9
+         m9eYdQjKKVOhZMDWwFHc9PuNPKh4VkwRkWWLry/dHnqEvGHM9A9CwdH2b4VA4FN8O/Cg
+         hgAStvvBQy7YVuccnyzLMasykvbsnTQVfsRdRUZISh3Bn2639FeDJHMa0sZl+NB6+IX/
+         rtGg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references;
+        bh=quPVf8eBVzcZxz8ex5NJeP51z5cR0PcYn2Z1GwULhcw=;
+        b=JoVWJISN4tOWrblZM1kFA6uZksuVssrLAmN9YwaKDhIzUbqPSOdX9F28E7OeUh4hyW
+         hKr+e8LrzjiMyh+xUiBolELPgLZVb7pbAS9RiKVz4mdIDala/LxEfPp2LV6kI9Z7TmuM
+         mIfrez8iuyJDL8SsVIIXae9qYjdM1gvp/dTnFbD/O735mb2pW3CAQOksQmMrkKdjwVy+
+         JivaRfdxIDWT3Ds7TKaAs4GHXykXsur+P2S/kLylMM5tlvVxs0L6ST/V2PzDKk3DftLz
+         0hDNiA/9q4f5sY9PfqiG0/DqHQXaj5R5kxS2OQkazr4CoqFmrpuMorFDK8nYKjIdRFzx
+         KrUg==
+X-Gm-Message-State: AOUpUlEdLVLy3QpelNnPlnHZ/C68t7spu1yDgqysLIKdAKhjAk9whJ3F
+        JJ76KJd3wgKH2aaNSHi4VP/RZtJ9
+X-Google-Smtp-Source: AA+uWPwy2xAjHG8dhokw1V4xe2mXNft0VvbcT6YfXre0KctCBgUP2oYL9XXhBD7LDSmH9BKZrrpuTg==
+X-Received: by 2002:a50:a93c:: with SMTP id l57-v6mr3722432edc.229.1533742714234;
+        Wed, 08 Aug 2018 08:38:34 -0700 (PDT)
+Received: from localhost.localdomain ([27.34.16.181])
+        by smtp.gmail.com with ESMTPSA id d11-v6sm1904876edo.39.2018.08.08.08.38.30
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 08 Aug 2018 08:38:33 -0700 (PDT)
+From:   Pratik Karki <predatoramigo@gmail.com>
+To:     git@vger.kernel.org
+Cc:     christian.couder@gmail.com, Johannes.Schindelin@gmx.de,
+        sbeller@google.com, alban.gruin@gmail.com, gitster@pobox.com,
+        Pratik Karki <predatoramigo@gmail.com>
+Subject: [PATCH 5/6] builtin rebase: use no-op editor when interactive is "implied"
+Date:   Wed,  8 Aug 2018 21:21:34 +0545
+Message-Id: <20180808153635.19944-6-predatoramigo@gmail.com>
+X-Mailer: git-send-email 2.18.0
+In-Reply-To: <20180808153635.19944-1-predatoramigo@gmail.com>
+References: <20180808153635.19944-1-predatoramigo@gmail.com>
+Sender: git-owner@vger.kernel.org
+Precedence: bulk
+List-ID: <git.vger.kernel.org>
+X-Mailing-List: git@vger.kernel.org
+Archived-At: <https://public-inbox.org/git/20180808153635.19944-6-predatoramigo@gmail.com/>
+List-Archive: <https://public-inbox.org/git/>
+List-Post: <mailto:git@vger.kernel.org>
+
+Some options are only handled by the git-rebase--interactive backend,
+even if run non-interactively. For this awkward situation (run
+non-interactively, but use the interactive backend), the shell scripted
+version of `git rebase` introduced the concept of an "implied
+interactive rebase". All it does is to replace the editor by a dummy one
+(`:` is the Unix command that takes arbitrary command-line parameters,
+ignores them and simply exits with success).
+
+Signed-off-by: Pratik Karki <predatoramigo@gmail.com>
+---
+ builtin/rebase.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/builtin/rebase.c b/builtin/rebase.c
+index 04974dff6e..fb8ab5a177 100644
+--- a/builtin/rebase.c
++++ b/builtin/rebase.c
+@@ -383,6 +383,13 @@ static int run_specific_rebase(struct rebase_options *opts)
+ 	add_var(&script_snippet, "git_format_patch_opt",
+ 		opts->git_format_patch_opt.buf);
+ 
++	if (is_interactive(opts) &&
++	    !(opts->flags & REBASE_INTERACTIVE_EXPLICIT)) {
++		strbuf_addstr(&script_snippet,
++			      "GIT_EDITOR=:; export GIT_EDITOR; ");
++		opts->autosquash = 0;
++	}
++
+ 	switch (opts->type) {
+ 	case REBASE_AM:
+ 		backend = "git-rebase--am";
+-- 
+2.18.0
+
+
+From mboxrd@z Thu Jan  1 00:00:00 1970
+Return-Path: <git-owner@vger.kernel.org>
+X-Spam-Checker-Version: SpamAssassin 3.4.1 (2015-04-28) on dcvr.yhbt.net
+X-Spam-Level: 
+X-Spam-ASN: AS31976 209.132.180.0/23
+X-Spam-Status: No, score=-4.1 required=3.0 tests=AWL,BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,RCVD_IN_DNSWL_HI
+	shortcircuit=no autolearn=ham autolearn_force=no version=3.4.1
+Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
+	by dcvr.yhbt.net (Postfix) with ESMTP id E3579208EB
+	for <e@80x24.org>; Wed,  8 Aug 2018 15:38:41 +0000 (UTC)
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1729122AbeHHR6w (ORCPT <rfc822;e@80x24.org>);
+        Wed, 8 Aug 2018 13:58:52 -0400
+Received: from mail-ed1-f66.google.com ([209.85.208.66]:33156 "EHLO
+        mail-ed1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728947AbeHHR6v (ORCPT <rfc822;git@vger.kernel.org>);
+        Wed, 8 Aug 2018 13:58:51 -0400
+Received: by mail-ed1-f66.google.com with SMTP id x5-v6so1495281edr.0
+        for <git@vger.kernel.org>; Wed, 08 Aug 2018 08:38:39 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references;
+        bh=BlUrgJOdF2qW2jB/4L+vblM3SxrGm24aP6z2MImjrqs=;
+        b=B+TqIc1bOH+ijijmshBZQaSAcEe+zHrAaaWwrl+EpQhKXrb9pdRvLYdy1migtVu/yb
+         +n4zof5m9d+NxHV2n8ctqLEDco9dPF8T5ImHMwYLudEZQ+niceQLEs01Bs5lkM0eNIOW
+         LAYKgSWTdVUrDYPJoQxzsPLQZnGxkkFLe6HwiG+vvBu4Pxi9WV+rPsbcg5Y26ZLVjdEq
+         3bgtxXbn5ani8GsZC8IY6491plaUk8retIu4lnqRBpAld6pVNEsKjOIgdHMs24sq1qfg
+         gB096CZshHUetOnSBAXpCASvkQGtoyu8hRkctpbutNUTq1ZGHah7Afv6tY9xWzggMYAH
+         j3gg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references;
+        bh=BlUrgJOdF2qW2jB/4L+vblM3SxrGm24aP6z2MImjrqs=;
+        b=MK4Ngn7yuZoZoXZDLxExeAUYv1CHi7nJ44RFhwbrwzJpLsk63uLrHLAXv+jpctpjgN
+         ANbC2KnJQ7WCTAnLghwJxFxJ2J27rdwhEveRq6hhAhGjfCXSAV8ybRxpvWY0+j69n6jT
+         9zCGTvHamIHF+KkrYyvhZIr41Po5ZpLFjDjXu17+/Y/D209/0LPyWNimzDRzOW1VDNNT
+         LZroztMu2QEV3pDlzLdYLmhfN27pmFYt9Gdmyj7ZMbUvy0PTFgYcVvxJafvqTZc0UzlZ
+         2ScV8BE4xZI1IaylHFuCDsHZf8yXNV1Wpp4xM9O8g4hYmMAFs6RCLrk722sxJ+/bgU4x
+         DB5g==
+X-Gm-Message-State: AOUpUlFaEgUCcEvNI88RPtDLnpAtpBdH02prHNE4MJ6o1axdb4cOyqs6
+        3ThCLiSPw/HmvpetG1+kJl/IM7zV
+X-Google-Smtp-Source: AA+uWPwjGYOCIc2qXvPdKqkg/QM8CvJzRmO/MFGJEoHn8oUE1mWkEwWy+fxFqoHRiCcph5dXguE4ZQ==
+X-Received: by 2002:a50:aa3b:: with SMTP id o56-v6mr3798618edc.23.1533742718460;
+        Wed, 08 Aug 2018 08:38:38 -0700 (PDT)
+Received: from localhost.localdomain ([27.34.16.181])
+        by smtp.gmail.com with ESMTPSA id d11-v6sm1904876edo.39.2018.08.08.08.38.34
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 08 Aug 2018 08:38:37 -0700 (PDT)
+From:   Pratik Karki <predatoramigo@gmail.com>
+To:     git@vger.kernel.org
+Cc:     christian.couder@gmail.com, Johannes.Schindelin@gmx.de,
+        sbeller@google.com, alban.gruin@gmail.com, gitster@pobox.com,
+        Pratik Karki <predatoramigo@gmail.com>
+Subject: [PATCH 6/6] builtin rebase: error out on incompatible option/mode combinations
+Date:   Wed,  8 Aug 2018 21:21:35 +0545
+Message-Id: <20180808153635.19944-7-predatoramigo@gmail.com>
+X-Mailer: git-send-email 2.18.0
+In-Reply-To: <20180808153635.19944-1-predatoramigo@gmail.com>
+References: <20180808153635.19944-1-predatoramigo@gmail.com>
+Sender: git-owner@vger.kernel.org
+Precedence: bulk
+List-ID: <git.vger.kernel.org>
+X-Mailing-List: git@vger.kernel.org
+Archived-At: <https://public-inbox.org/git/20180808153635.19944-7-predatoramigo@gmail.com/>
+List-Archive: <https://public-inbox.org/git/>
+List-Post: <mailto:git@vger.kernel.org>
+
+While working on the GSoC project to convert the rebase command to a
+builtin, the rebase command learned to error out on certain command-line
+option combinations that cannot work, such as --whitespace=fix with
+--interactive.
+
+This commit converts that code.
+
+Signed-off-by: Pratik Karki <predatoramigo@gmail.com>
+---
+ builtin/rebase.c | 41 +++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 41 insertions(+)
+
+diff --git a/builtin/rebase.c b/builtin/rebase.c
+index fb8ab5a177..4e69458161 100644
+--- a/builtin/rebase.c
++++ b/builtin/rebase.c
+@@ -1098,6 +1098,28 @@ int cmd_rebase(int argc, const char **argv, const char *prefix)
+ 		break;
+ 	}
+ 
++	if (options.git_am_opt.len) {
++		const char *p;
++
++		/* all am options except -q are compatible only with --am */
++		strbuf_reset(&buf);
++		strbuf_addbuf(&buf, &options.git_am_opt);
++		strbuf_addch(&buf, ' ');
++		while ((p = strstr(buf.buf, " -q ")))
++			strbuf_splice(&buf, p - buf.buf, 4, " ", 1);
++		strbuf_trim(&buf);
++
++		if (is_interactive(&options) && buf.len)
++			die(_("error: cannot combine interactive options "
++			      "(--interactive, --exec, --rebase-merges, "
++			      "--preserve-merges, --keep-empty, --root + "
++			      "--onto) with am options (%s)"), buf.buf);
++		if (options.type == REBASE_MERGE && buf.len)
++			die(_("error: cannot combine merge options (--merge, "
++			      "--strategy, --strategy-option) with am options "
++			      "(%s)"), buf.buf);
++	}
++
+ 	if (options.signoff) {
+ 		if (options.type == REBASE_PRESERVE_MERGES)
+ 			die("cannot combine '--signoff' with "
+@@ -1106,6 +1128,25 @@ int cmd_rebase(int argc, const char **argv, const char *prefix)
+ 		options.flags |= REBASE_FORCE;
+ 	}
+ 
++	if (options.type == REBASE_PRESERVE_MERGES)
++		/*
++		 * Note: incompatibility with --signoff handled in signoff block above
++		 * Note: incompatibility with --interactive is just a strong warning;
++		 *       git-rebase.txt caveats with "unless you know what you are doing"
++		 */
++		if (options.rebase_merges)
++			die(_("error: cannot combine '--preserve_merges' with "
++			      "'--rebase-merges'"));
++
++	if (options.rebase_merges) {
++		if (strategy_options.nr)
++			die(_("error: cannot combine '--rebase_merges' with "
++			      "'--strategy-option'"));
++		if (options.strategy)
++			die(_("error: cannot combine '--rebase_merges' with "
++			      "'--strategy'"));
++	}
++
+ 	if (!options.root) {
+ 		if (argc < 1) {
+ 			struct branch *branch;
+-- 
+2.18.0
+
+

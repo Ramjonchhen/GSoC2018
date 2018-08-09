@@ -1,0 +1,271 @@
+<html><head><title>[GSoC] [PATCH 0/5] rebase: rewrite rebase in C - Pratik Karki</title><link
+rel=alternate
+title="Atom feed"
+href="../new.atom"
+type="application/atom+xml"/><style>pre{white-space:pre-wrap}</style></head><body><form
+action="../"><pre><b>git@vger.kernel.org mailing list mirror (one of many)</b>
+<input
+name=q
+type=text /><input
+type=submit
+value=search /> <a
+href="../_/text/help">help</a> / <a
+href="../new.atom">Atom feed</a></pre></form><pre
+id=b>From: Pratik Karki &lt;predatoramigo@gmail.com&gt;
+To: git@vger.kernel.org
+Cc: christian.couder@gmail.com, Johannes.Schindelin@gmx.de,
+	sbeller@google.com, alban.gruin@gmail.com,
+	Pratik Karki &lt;predatoramigo@gmail.com&gt;
+Subject: <a
+href="#r"
+id=t>[GSoC] [PATCH 0/5] rebase: rewrite rebase in C</a>
+Date: Thu, 28 Jun 2018 13:31:50 +0545
+Message-ID: &lt;20180628074655.5756-1-predatoramigo@gmail.com&gt; (<a
+href="raw">raw</a>)
+
+As a GSoC project, I have been working on the builtin rebase.
+
+The motivation behind the rewrite of rebase i.e. from shell script to C
+are for following reasons:
+
+1.  Writing shell scripts and getting it to production is much faster
+    than doing the equivalent in C but lacks in performance and extra
+    workarounds are needed for non-POSIX platforms.
+
+2.  Git for Windows is at loss as the installer size increases due to
+    addition of extra dependencies for the shell scripts which are usually
+    available in POSIX compliant platforms.
+
+This series of patches serves to demonstrate a minimal builtin rebase
+which supports running `git rebase &lt;upstream&gt;` and also serves to ask for
+reviews.
+
+
+Pratik Karki (5):
+  Start TODO-rebase.sh
+  rebase: start implementing it as a builtin
+  rebase: refactor common shell functions into their own file
+  sequencer: refactor the code to detach HEAD to checkout.c
+  builtin/rebase: support running &#34;git rebase &lt;upstream&gt;&#34;
+
+ .gitignore                      |   2 +
+ Makefile                        |   4 +-
+ git-rebase.sh =&gt; TODO-rebase.sh |   0
+ builtin.h                       |   1 +
+ builtin/rebase.c                | 282 +++++++++++++
+ checkout.c                      |  64 +++
+ checkout.h                      |   3 +
+ git-legacy-rebase.sh            | 678 ++++++++++++++++++++++++++++++++
+ git-rebase--common.sh           |  61 +++
+ git.c                           |   6 +
+ sequencer.c                     |  58 +--
+ 11 files changed, 1105 insertions(+), 54 deletions(-)
+ rename git-rebase.sh =&gt; TODO-rebase.sh (100%)
+ create mode 100644 builtin/rebase.c
+ create mode 100755 git-legacy-rebase.sh
+ create mode 100644 git-rebase--common.sh
+
+-- 
+2.18.0
+
+</pre><hr><pre><a
+href="../20180628074655.5756-2-predatoramigo@gmail.com/"
+rel=next>next</a>             <a
+href="#R">reply</a> <a
+href="../">index</a>
+
+<b>Thread overview: </b>60+ messages / expand[<a
+href="T/#u">flat</a>|<a
+href="t/#u">nested</a>]  <a
+href="t.mbox.gz">mbox.gz</a>  <a
+href="t.atom">Atom feed</a>  <a
+href="#b">top</a>
+<b>2018-06-28  7:46 <a
+id=r
+href="#t">Pratik Karki [this message]</a></b>
+2018-06-28  7:46 ` <a
+href="../20180628074655.5756-2-predatoramigo@gmail.com/">[PATCH 1/5] Start TODO-rebase.sh</a> Pratik Karki
+2018-06-28  9:17   ` <a
+href="../CAOZc8M8u4RPsqRfy1nuuWgjPSAhjbO5ZTtZbR6HY1n3fH5-Q6g@mail.gmail.com/">Pratik Karki</a>
+2018-06-28  7:46 ` <a
+href="../20180628074655.5756-3-predatoramigo@gmail.com/">[PATCH 2/5] rebase: start implementing it as a builtin</a> Pratik Karki
+2018-06-28  8:08   ` <a
+href="../CAP8UFD2+7hRAHOTrYRZZad6OkGDM3CjnOJ3qcWUhS3R9-dn6bg@mail.gmail.com/">Christian Couder</a>
+2018-06-28 18:49   ` <a
+href="../CAGZ79kZe46nkNd9yRZfwDG_-D-oBV5221qvB5zaj4Vw909U7fw@mail.gmail.com/">Stefan Beller</a>
+2018-06-28  7:46 ` <a
+href="../20180628074655.5756-4-predatoramigo@gmail.com/">[PATCH 3/5] rebase: refactor common shell functions into their own file</a> Pratik Karki
+2018-06-28  8:02   ` <a
+href="../CAP8UFD1+r6LszVXf=Nv8cR4RoDWdXQV26su1oXN+WzbSdmrr+g@mail.gmail.com/">Christian Couder</a>
+2018-06-28 19:17   ` <a
+href="../CAGZ79kaVXVu9BWtQfpNturhLMJtCuc7MSuTa6aRwwC8q=nXsgQ@mail.gmail.com/">Stefan Beller</a>
+2018-06-28  7:46 ` <a
+href="../20180628074655.5756-5-predatoramigo@gmail.com/">[PATCH 4/5] sequencer: refactor the code to detach HEAD to checkout.c</a> Pratik Karki
+2018-06-28  8:14   ` <a
+href="../CAP8UFD06HO_j5-4wt=efB1Wr-52OcnZyn=bXAVra=ZpdxKXusA@mail.gmail.com/">Christian Couder</a>
+2018-06-28 21:19   ` <a
+href="../CAGZ79kZbrk6rSNYx9XP+PWEgghMrgR6JKtdyS+3ku8eOk0X+-w@mail.gmail.com/">Stefan Beller</a>
+2018-06-28  7:46 ` <a
+href="../20180628074655.5756-6-predatoramigo@gmail.com/">[PATCH 5/5] builtin/rebase: support running &#34;git rebase &lt;upstream&gt;&#34;</a> Pratik Karki
+2018-06-28 21:58   ` <a
+href="../CAGZ79kZpf3AMqZPraCYp+KNKPo9xex3OBJLAz_foGiSPVswYHw@mail.gmail.com/">Stefan Beller</a>
+2018-07-02  9:15 ` <a
+href="../20180702091509.15950-1-predatoramigo@gmail.com/">[GSoC] [PATCH v2 0/4] rebase: rewrite rebase in C</a> Pratik Karki
+2018-07-02  9:15   ` <a
+href="../20180702091509.15950-2-predatoramigo@gmail.com/">[PATCH v2 1/4] rebase: start implementing it as a builtin</a> Pratik Karki
+2018-07-03 21:09     ` <a
+href="../xmqqva9wni1f.fsf@gitster-ct.c.googlers.com/">Junio C Hamano</a>
+2018-07-02  9:15   ` <a
+href="../20180702091509.15950-3-predatoramigo@gmail.com/">[PATCH v2 2/4] rebase: refactor common shell functions into their own file</a> Pratik Karki
+2018-07-03 21:13     ` <a
+href="../xmqqr2kknhuj.fsf@gitster-ct.c.googlers.com/">Junio C Hamano</a>
+2018-07-02  9:15   ` <a
+href="../20180702091509.15950-4-predatoramigo@gmail.com/">[PATCH v2 3/4] sequencer: refactor the code to detach HEAD to checkout.c</a> Pratik Karki
+2018-07-03 21:26     ` <a
+href="../xmqqmuv8nh7v.fsf@gitster-ct.c.googlers.com/">Junio C Hamano</a>
+2018-07-02  9:15   ` <a
+href="../20180702091509.15950-5-predatoramigo@gmail.com/">[PATCH v2 4/4] builtin/rebase: support running &#34;git rebase &lt;upstream&gt;&#34;</a> Pratik Karki
+2018-07-03 21:42     ` <a
+href="../xmqqfu10nghi.fsf@gitster-ct.c.googlers.com/">Junio C Hamano</a>
+2018-07-06 12:08 ` <a
+href="../20180706120815.17851-1-predatoramigo@gmail.com/">[GSoC] [PATCH v3 0/4] rebase: rewrite rebase in C</a> Pratik Karki
+2018-07-06 12:08   ` <a
+href="../20180706120815.17851-2-predatoramigo@gmail.com/">[PATCH v3 1/4] rebase: start implementing it as a builtin</a> Pratik Karki
+2018-07-06 21:09     ` <a
+href="../xmqq36wwjcl2.fsf@gitster-ct.c.googlers.com/">Junio C Hamano</a>
+2018-07-06 12:08   ` <a
+href="../20180706120815.17851-3-predatoramigo@gmail.com/">[PATCH v3 2/4] rebase: refactor common shell functions into their own file</a> Pratik Karki
+2018-07-06 12:36     ` <a
+href="../nycvar.QRO.7.76.6.1807061432100.75@tvgsbejvaqbjf.bet/">Johannes Schindelin</a>
+2018-07-06 12:08   ` <a
+href="../20180706120815.17851-4-predatoramigo@gmail.com/">[PATCH v3 3/4] sequencer: refactor the code to detach HEAD to checkout.c</a> Pratik Karki
+2018-07-06 12:08   ` <a
+href="../20180706120815.17851-5-predatoramigo@gmail.com/">[PATCH v3 4/4] builtin/rebase: support running &#34;git rebase &lt;upstream&gt;&#34;</a> Pratik Karki
+2018-07-06 21:30     ` <a
+href="../xmqqsh4whx21.fsf@gitster-ct.c.googlers.com/">Junio C Hamano</a>
+2018-07-07  6:45     ` <a
+href="../CAP8UFD3_+0EDSzcrx9f70HBpWKvr94re5ZimuXDhfTZzJpfCvQ@mail.gmail.com/">Christian Couder</a>
+2018-07-07 11:59       ` <a
+href="../nycvar.QRO.7.76.6.1807071356520.75@tvgsbejvaqbjf.bet/">Johannes Schindelin</a>
+2018-07-07 16:24       ` <a
+href="../xmqqbmbjggka.fsf@gitster-ct.c.googlers.com/">Junio C Hamano</a>
+2018-07-17 21:49     ` <a
+href="../ae561025-3e99-0e4a-569a-c1ff1f2a2e58@drbeat.li/">Beat Bolli</a>
+2018-07-17 21:55       ` <a
+href="../edffa564-28e4-a0b1-8be3-865f420a88be@drbeat.li/">Beat Bolli</a>
+2018-07-08 18:01 ` <a
+href="../20180708180104.17921-1-predatoramigo@gmail.com/">[GSoC] [PATCH v4 0/4] rebase: rewrite rebase in C</a> Pratik Karki
+2018-07-08 18:01   ` <a
+href="../20180708180104.17921-2-predatoramigo@gmail.com/">[PATCH v4 1/4] rebase: start implementing it as a builtin</a> Pratik Karki
+2018-07-09  7:59     ` <a
+href="../857b04d8-37b4-596f-6f3e-45b6e2a59442@gmail.com/">Andrei Rybak</a>
+2018-07-09  8:36       ` <a
+href="../CAPig+cQopjftfSoPHPZQAzECTAUUwZ-pXYMeWEV=VJBFm63t9g@mail.gmail.com/">Eric Sunshine</a>
+2018-07-09 17:18         ` <a
+href="../CAOZc8M8qecSkH_zujcesSSGZy=9fS=phuEGMJPx_Vwit_2s+FA@mail.gmail.com/">Pratik Karki</a>
+2018-07-22  9:14     ` <a
+href="../CACsJy8D9mX4imSgQUdPgQEuj_CsuPwSUc9zLKjDTp4-q+Jnwkg@mail.gmail.com/">Duy Nguyen</a>
+2018-07-08 18:01   ` <a
+href="../20180708180104.17921-3-predatoramigo@gmail.com/">[PATCH v4 2/4] rebase: refactor common shell functions into their own file</a> Pratik Karki
+2018-07-08 18:01   ` <a
+href="../20180708180104.17921-4-predatoramigo@gmail.com/">[PATCH v4 3/4] sequencer: refactor the code to detach HEAD to checkout.c</a> Pratik Karki
+2018-07-08 21:31     ` <a
+href="../nycvar.QRO.7.76.6.1807082315350.75@tvgsbejvaqbjf.bet/">Johannes Schindelin</a>
+2018-07-09 17:23       ` <a
+href="../CAOZc8M8YmLwJOzG-1jyz8ft4W_tJMwNs6kSV8inX1q_zmDW8Sg@mail.gmail.com/">Pratik Karki</a>
+2018-07-09 16:42     ` <a
+href="../xmqq8t6kfjic.fsf@gitster-ct.c.googlers.com/">Junio C Hamano</a>
+2018-07-09 17:20       ` <a
+href="../CAOZc8M9HJ86vJ4Cbz5RhP_bd0Ezgp7x+zu5xqhvrxiCGED+NYA@mail.gmail.com/">Pratik Karki</a>
+2018-07-08 18:01   ` <a
+href="../20180708180104.17921-5-predatoramigo@gmail.com/">[PATCH v4 4/4] builtin/rebase: support running &#34;git rebase &lt;upstream&gt;&#34;</a> Pratik Karki
+2018-07-08 21:44     ` <a
+href="../nycvar.QRO.7.76.6.1807082331490.75@tvgsbejvaqbjf.bet/">Johannes Schindelin</a>
+2018-07-08 21:14   ` <a
+href="../nycvar.QRO.7.76.6.1807082311540.75@tvgsbejvaqbjf.bet/">[GSoC] [PATCH v4 0/4] rebase: rewrite rebase in C</a> Johannes Schindelin
+2018-07-30 16:29   ` <a
+href="../20180730162920.20318-1-predatoramigo@gmail.com/">[GSoC] [PATCH v5 0/3]</a> &#34; Pratik Karki
+2018-07-30 16:29     ` <a
+href="../20180730162920.20318-2-predatoramigo@gmail.com/">[PATCH v5 1/3] rebase: start implementing it as a builtin</a> Pratik Karki
+2018-07-30 16:29     ` <a
+href="../20180730162920.20318-3-predatoramigo@gmail.com/">[PATCH v5 2/3] rebase: refactor common shell functions into their own file</a> Pratik Karki
+2018-07-30 16:29     ` <a
+href="../20180730162920.20318-4-predatoramigo@gmail.com/">[PATCH v5 3/3] builtin/rebase: support running &#34;git rebase &lt;upstream&gt;&#34;</a> Pratik Karki
+2018-08-01  0:17     ` <a
+href="../CAOZc8M_FJmMCEB1MkJrBRpLiFjy8OTEg_MxoNQTh5-brHxR-=A@mail.gmail.com/">[GSoC] [PATCH v5 0/3] rebase: rewrite rebase in C</a> Pratik Karki
+2018-08-06 19:31     ` <a
+href="../20180806193111.12229-1-predatoramigo@gmail.com/">[GSoC] [PATCH v6</a> &#34; Pratik Karki
+2018-08-06 19:31       ` <a
+href="../20180806193111.12229-2-predatoramigo@gmail.com/">[GSoC] [PATCH v6 1/3] rebase: start implementing it as a builtin</a> Pratik Karki
+2018-08-06 19:31       ` <a
+href="../20180806193111.12229-3-predatoramigo@gmail.com/">[GSoC] [PATCH v6 2/3] rebase: refactor common shell functions into their own file</a> Pratik Karki
+2018-08-06 19:31       ` <a
+href="../20180806193111.12229-4-predatoramigo@gmail.com/">[GSoC] [PATCH v6 3/3] builtin/rebase: support running &#34;git rebase &lt;upstream&gt;&#34;</a> Pratik Karki
+</pre><hr><pre
+id=R><b>Reply instructions:</b>
+
+You may reply publically to <a
+href=#t>this message</a> via plain-text email
+using any one of the following methods:
+
+* Save the following mbox file, import it into your mail client,
+  and reply-to-all from there: <a
+href=raw>mbox</a>
+
+  Avoid top-posting and favor interleaved quoting:
+  <a
+href="https://en.wikipedia.org/wiki/Posting_style#Interleaved_style">https://en.wikipedia.org/wiki/Posting_style#Interleaved_style</a>
+
+  List information: <a
+href="http://vger.kernel.org/majordomo-info.html">http://vger.kernel.org/majordomo-info.html</a>
+
+* Reply using the <b>--to</b>, <b>--cc</b>, and <b>--in-reply-to</b>
+  switches of git-send-email(1):
+
+  git send-email \
+    --in-reply-to=20180628074655.5756-1-predatoramigo@gmail.com \
+    --to=predatoramigo@gmail.com \
+    --cc=Johannes.Schindelin@gmx.de \
+    --cc=alban.gruin@gmail.com \
+    --cc=christian.couder@gmail.com \
+    --cc=git@vger.kernel.org \
+    --cc=sbeller@google.com \
+    /path/to/YOUR_REPLY
+
+  <a
+href="https://kernel.org/pub/software/scm/git/docs/git-send-email.html">https://kernel.org/pub/software/scm/git/docs/git-send-email.html</a>
+
+* If your mail client supports setting the <b>In-Reply-To</b> header
+  via mailto: links, try the <a
+href="mailto:predatoramigo%40gmail.com?In-Reply-To=%3C20180628074655.5756-1-predatoramigo@gmail.com%3E&#38;Cc=Johannes.Schindelin%40gmx.de%2Calban.gruin%40gmail.com%2Cchristian.couder%40gmail.com%2Cgit%40vger.kernel.org%2Csbeller%40google.com&#38;Subject=Re%3A%20%5BGSoC%5D%20%5BPATCH%200%2F5%5D%20rebase%3A%20rewrite%20rebase%20in%20C">mailto: link</a>
+</pre>
+<hr><pre>git@vger.kernel.org mailing list mirror (one of many)
+
+Archives are clonable:
+	git clone --mirror https://public-inbox.org/git
+	git clone --mirror <a
+href="http://ou63pmih66umazou.onion/git">http://ou63pmih66umazou.onion/git</a>
+	git clone --mirror <a
+href="http://czquwvybam4bgbro.onion/git">http://czquwvybam4bgbro.onion/git</a>
+	git clone --mirror <a
+href="http://hjrcffqmbrq6wope.onion/git">http://hjrcffqmbrq6wope.onion/git</a>
+
+Newsgroups are available over NNTP:
+	<a
+href="nntp://news.public-inbox.org/inbox.comp.version-control.git">nntp://news.public-inbox.org/inbox.comp.version-control.git</a>
+	<a
+href="nntp://ou63pmih66umazou.onion/inbox.comp.version-control.git">nntp://ou63pmih66umazou.onion/inbox.comp.version-control.git</a>
+	<a
+href="nntp://czquwvybam4bgbro.onion/inbox.comp.version-control.git">nntp://czquwvybam4bgbro.onion/inbox.comp.version-control.git</a>
+	<a
+href="nntp://hjrcffqmbrq6wope.onion/inbox.comp.version-control.git">nntp://hjrcffqmbrq6wope.onion/inbox.comp.version-control.git</a>
+	<a
+href="nntp://news.gmane.org/gmane.comp.version-control.git">nntp://news.gmane.org/gmane.comp.version-control.git</a>
+
+ note: .onion URLs require Tor: <a
+href="https://www.torproject.org/">https://www.torproject.org/</a>
+       or Tor2web: <a
+href="https://www.tor2web.org/">https://www.tor2web.org/</a>
+
+AGPL code for this site: git clone <a
+href="https://public-inbox.org/">https://public-inbox.org/</a> public-inbox</pre></body></html>
