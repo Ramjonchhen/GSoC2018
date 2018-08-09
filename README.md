@@ -4,6 +4,8 @@ My microproject can be found in the [Git repository](https://github.com/git/git/
 
 For backup purposes, I have added a `v5` of my microprojects's file fetched via Git mailing list.
 
+Merged into `master` `v2.18.0`.
+
 # Proposal
 
 My proposal can be found here. Due to the last minute changes, it is only available in pdf format.
@@ -23,6 +25,8 @@ v4: [https://public-inbox.org/git/20180708180104.17921-1-predatoramigo@gmail.com
 v5: [https://public-inbox.org/git/20180730162920.20318-1-predatoramigo@gmail.com/](https://public-inbox.org/git/20180730162920.20318-1-predatoramigo@gmail.com/)
 
 v6: [https://public-inbox.org/git/20180806193111.12229-1-predatoramigo@gmail.com/](https://public-inbox.org/git/20180806193111.12229-1-predatoramigo@gmail.com/)
+
+Merged into `pu`.
 
 The second patch series of `A minimal builtin rebase` are:
 
