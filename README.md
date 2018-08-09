@@ -13,10 +13,15 @@ My proposal can be found here. Due to the last minute changes, it is only availa
 The first patch series of `rebase: rewrite in C` are:
 
 v1: [https://public-inbox.org/git/20180628074655.5756-1-predatoramigo@gmail.com/](https://public-inbox.org/git/20180628074655.5756-1-predatoramigo@gmail.com/)
+
 v2: [https://public-inbox.org/git/20180702091509.15950-1-predatoramigo@gmail.com/](https://public-inbox.org/git/20180702091509.15950-1-predatoramigo@gmail.com/)
+
 v3: [https://public-inbox.org/git/20180706120815.17851-1-predatoramigo@gmail.com/](https://public-inbox.org/git/20180706120815.17851-1-predatoramigo@gmail.com/)
+
 v4: [https://public-inbox.org/git/20180708180104.17921-1-predatoramigo@gmail.com/](https://public-inbox.org/git/20180708180104.17921-1-predatoramigo@gmail.com/)
+
 v5: [https://public-inbox.org/git/20180730162920.20318-1-predatoramigo@gmail.com/](https://public-inbox.org/git/20180730162920.20318-1-predatoramigo@gmail.com/)
+
 v6: [https://public-inbox.org/git/20180806193111.12229-1-predatoramigo@gmail.com/](https://public-inbox.org/git/20180806193111.12229-1-predatoramigo@gmail.com/)
 
 The second patch series of `A minimal builtin rebase` are:
