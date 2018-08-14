@@ -14,39 +14,49 @@ My proposal can be found here. Due to the last minute changes, it is only availa
 
 The first patch series of `rebase: rewrite in C` are:
 
-v1: [https://public-inbox.org/git/20180628074655.5756-1-predatoramigo@gmail.com/](https://public-inbox.org/git/20180628074655.5756-1-predatoramigo@gmail.com/)
+* v1: [https://public-inbox.org/git/20180628074655.5756-1-predatoramigo@gmail.com/](https://public-inbox.org/git/20180628074655.5756-1-predatoramigo@gmail.com/)
 
-v2: [https://public-inbox.org/git/20180702091509.15950-1-predatoramigo@gmail.com/](https://public-inbox.org/git/20180702091509.15950-1-predatoramigo@gmail.com/)
+* v2: [https://public-inbox.org/git/20180702091509.15950-1-predatoramigo@gmail.com/](https://public-inbox.org/git/20180702091509.15950-1-predatoramigo@gmail.com/)
 
-v3: [https://public-inbox.org/git/20180706120815.17851-1-predatoramigo@gmail.com/](https://public-inbox.org/git/20180706120815.17851-1-predatoramigo@gmail.com/)
+* v3: [https://public-inbox.org/git/20180706120815.17851-1-predatoramigo@gmail.com/](https://public-inbox.org/git/20180706120815.17851-1-predatoramigo@gmail.com/)
 
-v4: [https://public-inbox.org/git/20180708180104.17921-1-predatoramigo@gmail.com/](https://public-inbox.org/git/20180708180104.17921-1-predatoramigo@gmail.com/)
+* v4: [https://public-inbox.org/git/20180708180104.17921-1-predatoramigo@gmail.com/](https://public-inbox.org/git/20180708180104.17921-1-predatoramigo@gmail.com/)
 
-v5: [https://public-inbox.org/git/20180730162920.20318-1-predatoramigo@gmail.com/](https://public-inbox.org/git/20180730162920.20318-1-predatoramigo@gmail.com/)
+* v5: [https://public-inbox.org/git/20180730162920.20318-1-predatoramigo@gmail.com/](https://public-inbox.org/git/20180730162920.20318-1-predatoramigo@gmail.com/)
 
-v6: [https://public-inbox.org/git/20180806193111.12229-1-predatoramigo@gmail.com/](https://public-inbox.org/git/20180806193111.12229-1-predatoramigo@gmail.com/)
+* v6: [https://public-inbox.org/git/20180806193111.12229-1-predatoramigo@gmail.com/](https://public-inbox.org/git/20180806193111.12229-1-predatoramigo@gmail.com/)
+
+`v6` Merged into `pu`.
+
+The second patch series i.e. `A minimal builtin rebase`:
+
+* v1: [https://public-inbox.org/git/20180808134830.19949-1-predatoramigo@gmail.com/](https://public-inbox.org/git/20180808134830.19949-1-predatoramigo@gmail.com/)
 
 Merged into `pu`.
 
-The second patch series of `A minimal builtin rebase` are:
+The third patch series i.e. `builtin rebase actions`:
 
-v1: [https://public-inbox.org/git/20180808134830.19949-1-predatoramigo@gmail.com/](https://public-inbox.org/git/20180808134830.19949-1-predatoramigo@gmail.com/)
+* v1: [https://public-inbox.org/git/20180808150622.9614-1-predatoramigo@gmail.com/](https://public-inbox.org/git/20180808150622.9614-1-predatoramigo@gmail.com/)
 
-The third patch series of `builtin rebase actions` are:
+Merged into `pu`.
 
-v1: [https://public-inbox.org/git/20180808150622.9614-1-predatoramigo@gmail.com/](https://public-inbox.org/git/20180808150622.9614-1-predatoramigo@gmail.com/)
+The fourth patch series i.e. `builtin rebase options`:
 
-The fourth patch series of `builtin rebase options` are:
+* v1: [https://public-inbox.org/git/20180808152140.14585-1-predatoramigo@gmail.com/](https://public-inbox.org/git/20180808152140.14585-1-predatoramigo@gmail.com/)
 
-v1: [https://public-inbox.org/git/20180808152140.14585-1-predatoramigo@gmail.com/](https://public-inbox.org/git/20180808152140.14585-1-predatoramigo@gmail.com/)
+Merged into `pu`.
 
-The fifth patch series of `builtin rebase rest` are:
+The fifth patch series i.e. `builtin rebase rest`:
 
-v1: [https://public-inbox.org/git/20180808153635.19944-1-predatoramigo@gmail.com/](https://public-inbox.org/git/20180808153635.19944-1-predatoramigo@gmail.com/)
+* v1: [https://public-inbox.org/git/20180808153635.19944-1-predatoramigo@gmail.com/](https://public-inbox.org/git/20180808153635.19944-1-predatoramigo@gmail.com/)
 
-The sixth patch series of `default-to-builtin-rebase` are:
+Merged into `pu`.
 
-v1: [https://public-inbox.org/git/20180808155302.23814-1-predatoramigo@gmail.com/](https://public-inbox.org/git/20180808155302.23814-1-predatoramigo@gmail.com/)
+The sixth patch series i.e. `default-to-builtin-rebase`:
+
+* v1: [https://public-inbox.org/git/20180808155302.23814-1-predatoramigo@gmail.com/](https://public-inbox.org/git/20180808155302.23814-1-predatoramigo@gmail.com/)
+
+Merged into `pu`.
 
 For backup purposes I have added `mbox` files of the patch series in the respective folders.
 
