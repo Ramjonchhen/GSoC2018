@@ -58,6 +58,8 @@ The sixth patch series i.e. `default-to-builtin-rebase`:
 
 Merged into `pu`.
 
+The merge status are updated as of 2018-08-14.
+
 For backup purposes I have added `mbox` files of the patch series in the respective folders.
 
 Additionally, this [pull request](https://github.com/git/git/pull/505/) contains all the conversations and the latest commits.
